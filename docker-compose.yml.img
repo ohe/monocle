@@ -52,7 +52,7 @@ services:
       - $PWD/dump:/var/lib/crawler:Z
 
   web:
-    build: web
+    image: "changemetrics/monocle_web:${MONOCLE_VERSION:-latest}"
     depends_on:
       - api
     ports:

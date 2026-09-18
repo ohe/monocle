@@ -49,6 +49,25 @@ class TestGithubCrawler(unittest.TestCase):
         """
         self.extract_and_compare('github.com-wazo-platform-wazo-ansible-76')
 
+    def test_changed_files_count_fallbacks(self):
+        """
+        Github crawler computes changed_files_count when the count is unavailable
+        """
+        pr_fetcher = pullrequest.PRsFetcher(None, 'https://github.com', None, None)
+        input_pr, _ = load_change('github.com-morucci-monocle-70')
+
+        input_pr['changedFilesIfAvailable'] = 5
+        del input_pr['changedFiles']
+        self.assertEqual(
+            pr_fetcher.extract_objects([input_pr], None)[0]['changed_files_count'], 5
+        )
+
+        input_pr['changedFilesIfAvailable'] = None
+        self.assertEqual(
+            pr_fetcher.extract_objects([input_pr], None)[0]['changed_files_count'],
+            len(input_pr['files']['edges']),
+        )
+
     def test_load_buggy(self):
         """
         Github crawler extracts buggy prs

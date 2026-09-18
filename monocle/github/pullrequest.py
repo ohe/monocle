@@ -68,7 +68,7 @@ class PRsFetcher(object):
           closedAt
           additions
           deletions
-          changedFiles
+          changedFilesIfAvailable
           title
           headRefName
           baseRefName
@@ -340,7 +340,6 @@ class PRsFetcher(object):
             change['additions'] = pr['additions']
             change['deletions'] = pr['deletions']
             change['approval'] = [pr['reviewDecision']]
-            change['changed_files_count'] = pr['changedFiles']
             change["changed_files"] = [
                 {
                     "additions": fd['node']["additions"],
@@ -349,6 +348,12 @@ class PRsFetcher(object):
                 }
                 for fd in pr["files"]["edges"]
             ]
+            changed_files_count = pr.get('changedFilesIfAvailable')
+            if changed_files_count is None:
+                changed_files_count = pr.get('changedFiles')
+            if changed_files_count is None:
+                changed_files_count = len(change["changed_files"])
+            change['changed_files_count'] = changed_files_count
             change['commits'] = []
             change['commit_count'] = len(pr['commits']['edges'])
             if pr['mergedBy']:
